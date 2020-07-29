@@ -1,0 +1,67 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 150px;
+  .game {
+    display: flex;
+    width: 300px;
+    height: 300px;
+    justify-content: space-between;
+    align-items: stretch;
+    flex-wrap: wrap;
+    .field {
+      width: 30%;
+      height: 30%;
+      // background-color: #5238e4;
+      background: linear-gradient(#43fe6f, #3afe38);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      font-size: 70px;
+      padding: 0;
+      text-shadow: 1px 1px 3px black;
+      box-shadow: 3px 3px 5px white, inset 4px 4px 5px black;
+      cursor: pointer;
+      border-radius: 5px;
+      &:hover {
+        color: black;
+        text-shadow: 1px 1px 3px white;
+        box-shadow: inset -2px -2px 4px black;
+      }
+    }
+  }
+  .messages {
+    width: 300px;
+    text-align: center;
+    .message {
+      width: 100%;
+      background-color: green;
+      background: linear-gradient(-45deg, #4729ed, transparent);
+      padding: 5px;
+      margin: 3px;
+      border-radius: 5px;
+      border-right: 2px solid white;
+    }
+  }
+  .players {
+    display: flex;
+    justify-content: space-between;
+    span {
+      display: inline-block;
+      color: white;
+      padding: 4px;
+      margin: 10px;
+      width: 170px;
+      background: linear-gradient(45deg, #34ef53, #1117ca);
+      border-radius: 3px;
+      text-align: center;
+      text-shadow: 1px 1px black;
+    }
+  }
+
+  button {
+    width: 100px;
+  }
+}

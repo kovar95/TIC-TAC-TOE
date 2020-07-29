@@ -1,0 +1,47 @@
+.index {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  justify-content: space-around;
+  height: 100%;
+  max-height: 700px;
+  align-items: center;
+  margin: 0 auto;
+  input {
+    height: 30px;
+    width: 200px;
+    padding: 5px;
+    margin: 15px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 2px 2px 10px 3px blue;
+    outline: none;
+  }
+  button {
+    background-color: blue;
+    margin: 10px;
+    height: 30px;
+    width: 100px;
+    border: 1px solid gray;
+    border-radius: 7px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 1px 1px black;
+    box-shadow: 1px 1px 5px 1px white;
+    cursor: pointer;
+    outline: none;
+    &:hover {
+      background-color: gray;
+      color: black;
+      text-shadow: 1px 1px white;
+      box-shadow: inset 1px 1px 5px 1px white;
+    }
+  }
+  h1 {
+    color: blue;
+    text-align: center;
+    margin-top: 200px;
+    text-shadow: 1px 1px 3px white;
+  }
+}
