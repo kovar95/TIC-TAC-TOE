@@ -10,7 +10,7 @@ import { Link, withRouter } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 const Board = ({
-  player: { id },
+  player: { name, id },
   updateUserBoards,
   userBoards,
   updateCurrentBoard,
@@ -67,7 +67,7 @@ const Board = ({
 
   return (
     <div className="boards">
-      <h1>Boards page</h1>
+      <h1>User : {name}</h1>
       <button onClick={e => createBoard()}>Create board</button>
       <br />
       <input
