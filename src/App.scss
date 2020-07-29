@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  color: white;
 }
 
 body {
@@ -18,7 +19,7 @@ body {
   }
   button {
     background: linear-gradient(45deg, #006fff, #0cfeee);
-    margin: 10px;
+    margin: 10px 3px;
     height: 30px;
     width: 200px;
     border: none;

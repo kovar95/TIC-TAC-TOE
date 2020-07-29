@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import Index from './components/Index/Index';
 import Board from './components/Board/Board';
 import Game from './components/Game/Game';
+import PrivateRoute from './components/PrivateRoute';
 
 const App = ({ errors }) => {
   return (
@@ -17,17 +18,9 @@ const App = ({ errors }) => {
         ))}
       </div>
       <Switch>
-        <Route exact path="/">
-          <Index />
-        </Route>
-
-        <Route exact path="/board">
-          <Board />
-        </Route>
-
-        <Route exact path="/game">
-          <Game />
-        </Route>
+        <Route exact path="/" component={Index} />
+        <PrivateRoute exact path="/board" component={Board} />
+        <PrivateRoute exact path="/game" component={Game} />
       </Switch>
     </Fragment>
   );
@@ -37,6 +30,4 @@ const mapStateToProps = state => ({
   errors: state.errors,
 });
 
-const mapDispatchToProps = dispatch => ({});
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);

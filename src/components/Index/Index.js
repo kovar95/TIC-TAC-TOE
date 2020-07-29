@@ -46,6 +46,7 @@ const Index = ({ updatePlayer, history, setError }) => {
         value={name}
         placeholder="Enter your username"
         onChange={e => setName(e.target.value)}
+        maxLength="15"
       />
       <button type="submit" onClick={e => registerPlayer(e)}>
         REGISTER

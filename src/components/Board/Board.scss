@@ -1,42 +1,7 @@
-* {
-  color: white;
-  input,
-  button {
-    color: black;
-  }
-}
-
 .boards {
   display: flex;
   flex-direction: column;
   align-items: center;
-  h1 {
-    color: white;
-    text-align: center;
-    margin-top: 200px;
-    text-shadow: 8px 8px 11px blue;
-  }
-  // button {
-  //   background: linear-gradient(45deg, #006fff, #0cfeee);
-  //   margin: 10px;
-  //   height: 30px;
-  //   width: 200px;
-  //   border: none;
-  //   border-radius: 7px;
-  //   font-weight: 800;
-  //   color: white;
-  //   text-shadow: -1px -1px black;
-  //   box-shadow: 2px 2px 4px grey;
-  //   cursor: pointer;
-  //   outline: none;
-  //   transition: all 0.5s ease;
-  //   &:hover {
-  //     box-shadow: inset 2px 2px 5px black;
-  //     text-shadow: 1px 1px black;
-  //     opacity: 0.7;
-  //   }
-  // }
-
   input {
     height: 30px;
     width: 250px;
@@ -46,8 +11,8 @@
     border: none;
     box-shadow: 2px 2px 10px 3px blue;
     outline: none;
+    color: black;
   }
-
   .alert {
     background-color: red;
     opacity: 0.8;

@@ -18,13 +18,22 @@ const Game = ({
 }) => {
   const [opponentSeat, setOpponentSeat] = useState(false);
   const [myTurn, setMyTurn] = useState(false);
+  const [endGame, setEndGame] = useState(false);
   const [matrix, setMatrix] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const acks = {
+    400: 'Bad request, you have issued an illegalrequest',
+    500: 'Internal server error',
+    404: 'Room not found',
+  };
 
   const establishConnection = useCallback(async () => {
     try {
       await setAlert('Welcome to the GAME!');
-      await socket.emit('join_room', currentBoardId, responseCode => {
-        console.log(`Ack: ${responseCode}`);
+      await socket.emit('join_room', currentBoardId, async responseCode => {
+        if (Number(responseCode) !== 200) {
+          await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+          history.goBack();
+        }
       });
 
       socket.on('joined', async data => {
@@ -43,12 +52,13 @@ const Game = ({
         }
       });
 
-      socket.on('win', async data => {
-        setAlert(`Player: ${data.player.name} has won the game!`);
+      socket.on('tie', async data => {
+        await setAlert(`It is TIE, restart game to start new one!`);
       });
 
-      socket.on('tie', async data => {
-        setAlert(`It is TIE, restart game to start new one!`);
+      socket.on('win', async data => {
+        await setAlert(`Player: ${data.player.name} has won the game!`);
+        await setEndGame(true);
       });
 
       socket.on('seat_left', async data => {
@@ -57,7 +67,8 @@ const Game = ({
 
       socket.on('restarted', async data => {
         await setMatrix([0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        setAlert(`New Game Begining...!`);
+        await setAlert(`New Game Begining...!`);
+        await setEndGame(false);
       });
 
       socket.on('left', async data => {
@@ -90,32 +101,51 @@ const Game = ({
   }, [establishConnection]);
 
   const markTile = indexOfTile => {
-    socket.emit('mark_tile', currentBoardId, indexOfTile, responseCode => {
-      console.log(`Ack: ${responseCode}, Tile marked`);
-    });
+    socket.emit(
+      'mark_tile',
+      currentBoardId,
+      indexOfTile,
+      async responseCode => {
+        if (Number(responseCode) !== 200) {
+          await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+        }
+      }
+    );
   };
 
   const leaveRoom = async () => {
-    await socket.emit('leave_seat', currentBoardId, responseCode => {
+    await socket.emit('leave_seat', currentBoardId, async responseCode => {
       console.log(`Ack: ${responseCode}, Seat left`);
+      if (Number(responseCode) !== 200) {
+        await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+      }
     });
 
-    await socket.emit('leave_room', currentBoardId, responseCode => {
+    await socket.emit('leave_room', currentBoardId, async responseCode => {
       console.log(`Ack: ${responseCode}, Room left`);
+      if (Number(responseCode) !== 200) {
+        await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+      }
     });
 
     await history.goBack();
   };
 
   const leaveSeat = async () => {
-    await socket.emit('leave_seat', currentBoardId, responseCode => {
+    await socket.emit('leave_seat', currentBoardId, async responseCode => {
       console.log(`Ack: ${responseCode}, Seat left`);
+      if (Number(responseCode) !== 200) {
+        await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+      }
     });
   };
 
   const restartGame = async () => {
-    await socket.emit('restart', currentBoardId, responseCode => {
+    await socket.emit('restart', currentBoardId, async responseCode => {
       console.log(`Ack: ${responseCode}, Game restarted`);
+      if (Number(responseCode) !== 200) {
+        await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+      }
     });
   };
 
@@ -123,8 +153,8 @@ const Game = ({
     <div className="main">
       <h1>GAME</h1>
       <div className="players">
-        <span>Player 1: {name}</span>
-        <span>Player 2: {opponentSeat ? 'Player2' : 'No opponent'}</span>
+        <span>{name}</span>
+        <span>{opponentSeat ? 'Opponent' : 'No opponent'}</span>
       </div>
 
       <div className="game">
@@ -139,7 +169,9 @@ const Game = ({
           return (
             <div
               className="field"
-              onClick={e => field === 0 && myTurn && markTile(index)}
+              onClick={e =>
+                field === 0 && myTurn && !endGame && markTile(index)
+              }
               key={index}
             >
               {val}

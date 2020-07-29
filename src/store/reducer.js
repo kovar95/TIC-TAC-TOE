@@ -2,7 +2,7 @@ import * as actionTypes from './ActionTypes';
 
 const initialState = {
   socket: {},
-  player: {},
+  player: null,
   currentBoardId: '',
   userBoards: [],
   opponent: {},
