@@ -15,7 +15,6 @@ const Board = ({
   userBoards,
   updateCurrentBoard,
   socketUpdate,
-  updateMySeat,
   history,
   socket,
   setError,
@@ -28,7 +27,6 @@ const Board = ({
         apikey: id,
       });
       await updateCurrentBoard('');
-      await updateMySeat(0);
       await updateUserBoards(boards.data);
     } catch (error) {
       setError(error.message);
@@ -110,7 +108,6 @@ Board.propTypes = {
   userBoards: PropTypes.array.isRequired,
   updateCurrentBoard: PropTypes.func.isRequired,
   socketUpdate: PropTypes.func.isRequired,
-  updateMySeat: PropTypes.func.isRequired,
   setError: PropTypes.func.isRequired,
 };
 
@@ -125,7 +122,6 @@ const mapDispatchToProps = dispatch => ({
   updateCurrentBoard: boardId =>
     dispatch(actionCreators.updateCurrentBoard(boardId)),
   socketUpdate: socket => dispatch(actionCreators.socketUpdate(socket)),
-  updateMySeat: seatNo => dispatch(actionCreators.updateMySeat(seatNo)),
   setError: message => {
     const msgId = uuidv4();
     dispatch(actionCreators.setError(message, msgId));

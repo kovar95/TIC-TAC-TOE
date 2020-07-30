@@ -7,21 +7,29 @@ import * as actionCreators from '../../store/ActionCreators';
 import { v4 as uuidv4 } from 'uuid';
 
 const Game = ({
-  player: { id, name },
+  player: { id },
   currentBoardId,
   history,
   socket,
-  updateMySeat,
   setAlert,
   alerts,
   setError,
 }) => {
   const [opponentSeat, setOpponentSeat] = useState(false);
   const [myTurn, setMyTurn] = useState(false);
+  const [player1, setPlayer1] = useState({
+    id: '',
+    name: 'Player 1',
+  });
+  const [player2, setPlayer2] = useState({
+    id: '',
+    name: 'Player 2',
+  });
+  const [mySeat, setMySeat] = useState(0);
   const [endGame, setEndGame] = useState(false);
   const [matrix, setMatrix] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
   const acks = {
-    400: 'Bad request, you have issued an illegalrequest',
+    400: 'Bad request, you have issued an illegal request',
     500: 'Internal server error',
     404: 'Room not found',
   };
@@ -41,14 +49,22 @@ const Game = ({
           `Player ${data.player.name} joined the game at seat no: ${data.seat}`
         );
 
+        if (data.player.id === Number(id)) {
+          await setMySeat(data.seat);
+        }
+
         if (data.seat === 1) {
-          await updateMySeat(1);
+          await setPlayer1({
+            name: data.player.name,
+            id: data.player.id,
+          });
           await setMyTurn(true);
         } else if (data.seat === 2) {
+          await setPlayer2({
+            name: data.player.name,
+            id: data.player.id,
+          });
           await setOpponentSeat(true);
-          if (data.player.id === Number(id)) {
-            await updateMySeat(2);
-          }
         }
       });
 
@@ -63,6 +79,27 @@ const Game = ({
 
       socket.on('seat_left', async data => {
         await setAlert(`Player: ${data.player.name} has left his seat!`);
+        await setMyTurn(false);
+        if (data.player.id === Number(id)) {
+          await setMySeat(0);
+        }
+        switch (data.seat) {
+          case 1:
+            await setPlayer1({
+              name: '',
+              id: '',
+            });
+            break;
+          case 2:
+            await setPlayer2({
+              name: '',
+              id: '',
+            });
+            break;
+          default:
+            break;
+        }
+        await setOpponentSeat(false);
       });
 
       socket.on('restarted', async data => {
@@ -86,6 +123,7 @@ const Game = ({
         } else {
           await setMyTurn(true);
         }
+
         await setMatrix(newArr);
         await setAlert(
           `Player: ${data.player.name}, with seat no: ${data.seat} has marked the tile!`
@@ -100,44 +138,49 @@ const Game = ({
     establishConnection();
   }, [establishConnection]);
 
-  const markTile = indexOfTile => {
-    socket.emit(
-      'mark_tile',
-      currentBoardId,
-      indexOfTile,
-      async responseCode => {
-        if (Number(responseCode) !== 200) {
-          await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+  const markTile = async (indexOfTile, hasSeat) => {
+    hasSeat !== 0 &&
+      (await socket.emit(
+        'mark_tile',
+        currentBoardId,
+        indexOfTile,
+        async responseCode => {
+          if (Number(responseCode) !== 200) {
+            await setError(
+              `Error code : ${responseCode}: ${acks[responseCode]}`
+            );
+          }
         }
-      }
-    );
+      ));
   };
 
   const leaveRoom = async () => {
-    await socket.emit('leave_seat', currentBoardId, async responseCode => {
-      console.log(`Ack: ${responseCode}, Seat left`);
-      if (Number(responseCode) !== 200) {
-        await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
-      }
-    });
+    mySeat !== 0 && (await leaveSeat());
 
     await socket.emit('leave_room', currentBoardId, async responseCode => {
       console.log(`Ack: ${responseCode}, Room left`);
       if (Number(responseCode) !== 200) {
         await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+      } else {
+        await history.goBack();
       }
     });
-
-    await history.goBack();
   };
 
   const leaveSeat = async () => {
-    await socket.emit('leave_seat', currentBoardId, async responseCode => {
-      console.log(`Ack: ${responseCode}, Seat left`);
-      if (Number(responseCode) !== 200) {
-        await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+    await socket.emit(
+      'leave_seat',
+      currentBoardId,
+      mySeat,
+      async responseCode => {
+        console.log(`Ack: ${responseCode}, Seat left`);
+        if (Number(responseCode) !== 200) {
+          await setError(`Error code : ${responseCode}: ${acks[responseCode]}`);
+        } else {
+          await restartGame();
+        }
       }
-    });
+    );
   };
 
   const restartGame = async () => {
@@ -153,8 +196,8 @@ const Game = ({
     <div className="main">
       <h1>GAME</h1>
       <div className="players">
-        <span>{name}</span>
-        <span>{opponentSeat ? 'Opponent' : 'No opponent'}</span>
+        <span>{player1.name}</span>
+        <span>{player2.name}</span>
       </div>
 
       <div className="game">
@@ -170,7 +213,7 @@ const Game = ({
             <div
               className="field"
               onClick={e =>
-                field === 0 && myTurn && !endGame && markTile(index)
+                field === 0 && myTurn && !endGame && markTile(index, mySeat)
               }
               key={index}
             >
@@ -198,7 +241,6 @@ const Game = ({
 Game.propTypes = {
   player: PropTypes.object.isRequired,
   currentBoardId: PropTypes.string.isRequired,
-  updateMySeat: PropTypes.func.isRequired,
   setAlert: PropTypes.func.isRequired,
   setError: PropTypes.func.isRequired,
   socket: PropTypes.object.isRequired,
@@ -210,10 +252,10 @@ const mapStateToProps = state => ({
   currentBoardId: state.currentBoardId,
   socket: state.socket,
   alerts: state.alerts,
+  mySeat: state.mySeat,
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateMySeat: seatNo => dispatch(actionCreators.updateMySeat(seatNo)),
   setAlert: message => {
     const msgId = uuidv4();
     dispatch(actionCreators.setAlert(message, msgId));

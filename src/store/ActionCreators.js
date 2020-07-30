@@ -14,13 +14,6 @@ export const updatePlayer = playerData => {
   };
 };
 
-export const updateMySeat = seatNo => {
-  return {
-    type: actionTypes.MY_SEAT_UPDATE,
-    mySeat: seatNo,
-  };
-};
-
 export const setAlert = (message, id) => {
   return {
     type: actionTypes.SET_ALERT,

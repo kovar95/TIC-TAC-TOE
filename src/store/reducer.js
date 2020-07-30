@@ -6,7 +6,6 @@ const initialState = {
   currentBoardId: '',
   userBoards: [],
   opponent: {},
-  mySeat: 0,
   alerts: [],
   errors: [],
 };
@@ -29,12 +28,6 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         opponent: action.opponent,
-      };
-
-    case actionTypes.MY_SEAT_UPDATE:
-      return {
-        ...state,
-        mySeat: action.mySeat,
       };
 
     case actionTypes.CURRENT_BOARD_UPDATE:
